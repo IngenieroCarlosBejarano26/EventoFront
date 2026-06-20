@@ -1,106 +1,113 @@
-# EventosVivos · Web (Angular 21 + PrimeNG)
+# EventosVivos · Web
 
-Frontend del sistema de gestión de eventos y reservas. Consume la API .NET y refleja la
-disponibilidad de entradas **en tiempo real** vía SignalR.
+Panel de administración para gestionar eventos, reservas y reportes de ocupación. Habla con la API
+.NET y actualiza el inventario de entradas en vivo cuando alguien reserva o confirma un pago.
 
-> API (.NET 10): https://github.com/IngenieroCarlosBejarano26/EventoApi
-
-## Aplicación desplegada (Azure Static Web Apps, Free)
-
-| Recurso | URL |
-|---------|-----|
-| **Frontend** | https://ambitious-moss-06713740f.7.azurestaticapps.net |
-| **API** | https://eventosvivos-api-t37ke2.azurewebsites.net |
+**Demo:** https://ambitious-moss-06713740f.7.azurestaticapps.net  
+**API:** https://github.com/IngenieroCarlosBejarano26/EventoApi · https://eventosvivos-api-t37ke2.azurewebsites.net
 
 ---
 
-## Arquitectura
+## Por qué esta arquitectura
 
-Organizada por **features** (vertical slices en el frontend), alineada con los casos de uso del
-backend. Cada pantalla es un componente standalone con lazy loading; el estado se gestiona con
-**Signals** y servicios inyectables, sin NgRx.
+Organicé el frontend por **features**, no por tipo de archivo (`components/`, `services/` sueltos).
+Cada pantalla del enunciado (dashboard, listado, crear evento, reservar, confirmar, reporte) es una
+carpeta con su componente standalone. Si mañana quitan el módulo de reportes, borro una carpeta y
+listo.
 
 ```
 src/app/
-├─ core/           # Modelos tipados, servicios HTTP, interceptores, cliente SignalR
-│   ├─ services/   # EventService, ReservationService, RealtimeService…
-│   └─ interceptors/  # X-API-KEY automático + ProblemDetails legibles
-└─ features/       # Una carpeta por pantalla / flujo de negocio
+├─ core/              # Lo compartido: modelos, HTTP, SignalR, interceptores
+└─ features/
     ├─ dashboard/
-    ├─ events/         # RF-01, RF-02
-    ├─ reservations/   # RF-03, RF-04, RF-05
-    └─ reports/        # RF-06
+    ├─ events/        # listar + crear
+    ├─ reservations/  # reservar + confirmar/cancelar
+    └─ reports/       # ocupación
 ```
 
-### Justificación de decisiones
+Las rutas cargan lazy (`loadComponent`). El bundle inicial se mantiene pequeño aunque el proyecto
+crezca. Para una prueba de 6 pantallas no es crítico, pero es el patrón que usaría en producción.
 
-| Decisión | Por qué |
-|----------|---------|
-| **Standalone Components** | Menos boilerplate que NgModules; árbol de dependencias explícito y más fácil de mantener. |
-| **Features + lazy loading** | Cada ruta carga solo su código; escala bien si crece el número de pantallas. |
-| **Signals + servicios** | Estado reactivo suficiente para este alcance; evita la complejidad de NgRx sin perder claridad. |
-| **Typed Reactive Forms** | Validación tipada en formularios de creación de eventos y reservas; menos errores en runtime. |
-| **Interceptores HTTP** | API Key y manejo de errores centralizados; los componentes no repiten lógica transversal. |
-| **SignalR en `RealtimeService`** | Parchea el inventario en vivo (`EventUpdated`, `EventCreated`) sin polling ni recargas manuales. |
-| **PrimeNG (tema neutro)** | Componentes accesibles y consistentes para una UI tipo herramienta administrativa. |
+El estado vive en **servicios con Signals**, no en NgRx. NgRx tiene sentido con muchos flujos
+cruzados y efectos complejos; aquí el estado es lineal (cargar eventos → filtrar → reservar →
+refrescar). Añadir actions, reducers y selectors sería ruido sin beneficio real.
 
-> Documentación ampliada del sistema completo: [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
+Detalle del sistema completo (backend incluido): [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
 
 ---
 
-## Tecnologías
+## Por qué estas herramientas
 
-| Área | Stack |
-|------|-------|
-| Framework | Angular 21 |
-| UI | PrimeNG, SCSS (diseño sobrio, paleta neutra) |
-| Estado | Angular Signals, servicios (`providedIn: 'root'`) |
-| Formularios | Typed Reactive Forms |
-| HTTP | `HttpClient`, interceptores personalizados |
-| Tiempo real | `@microsoft/signalr` |
-| Build | Angular CLI, Node.js ≥ 22 |
-| Despliegue | Azure Static Web Apps, GitHub Actions |
+**Angular 21**  
+La prueba pide Angular. Uso standalone components y signals porque es lo que recomienda el equipo de
+Angular hoy: menos NgModules, change detection más predecible. Conozco React, pero aquí el tipado de
+formularios y la estructura por features encajan bien con un panel admin.
+
+**PrimeNG en lugar de Angular Material**  
+Material se ve en casi todos los proyectos Angular de prueba técnica. PrimeNG me da tablas, formularios
+y tags con menos personalización forzada para un look de backoffice. Ajusté el tema a grises + un solo
+accent azul — nada de gradientes ni glassmorphism que distraigan del contenido.
+
+**Typed Reactive Forms**  
+Los formularios de crear evento y reservar tienen muchas validaciones cruzadas (fechas, capacidad,
+email). Con formularios tipados el IDE me avisa si cambio un campo del modelo y me olvido del
+formulario. Template-driven forms aquí serían un dolor de mantener.
+
+**Interceptores HTTP**  
+La API Key solo la necesitan dos operaciones admin. En lugar de repetir el header en cada servicio,
+un interceptor lo adjunta cuando corresponde. Otro interceptor traduce `ProblemDetails` del backend a
+mensajes que el usuario entiende (`409` → "no hay entradas suficientes", no un JSON crudo).
+
+**SignalR (`@microsoft/signalr`)**  
+Sin esto, cada reserva obligaría a recargar el listado o hacer polling. El `RealtimeService` escucha
+`EventUpdated` y parchea el signal del evento afectado. El indicador "En vivo" en la topbar refleja
+si la conexión está activa.
+
+**Azure Static Web Apps**  
+Hosting gratis para SPAs con fallback de rutas incluido (`staticwebapp.config.json`). El frontend no
+necesita servidor Node en producción — son archivos estáticos. El backend va aparte en App Service.
+
+**GitHub Actions**  
+Mismo flujo que el backend: push a `main`, build, deploy. Un secreto (`AZURE_STATIC_WEB_APPS_API_TOKEN`)
+y no toco el portal de Azure para cada cambio.
 
 ---
 
 ## Ejecutar localmente
 
-**Requisitos:** Node.js ≥ 22.12 y la API en ejecución (ver README del repo [EventoApi](https://github.com/IngenieroCarlosBejarano26/EventoApi)).
+Node.js ≥ 22.12 y la API corriendo en `http://localhost:5090` (ver README de EventoApi).
 
 ```bash
 npm install
-npm start          # http://localhost:4200
+npm start        # http://localhost:4200
 ```
 
-Por defecto consume la API local en `http://localhost:5090/api` (`src/environments/environment.ts`).
-La build de producción usa `environment.production.ts`, que apunta al backend en Azure.
+El entorno de desarrollo apunta a la API local (`src/environments/environment.ts`). La build de
+producción usa la URL de Azure (`environment.production.ts`).
 
 ```bash
-npm run build      # genera dist/web/browser
+npm run build    # salida en dist/web/browser
 ```
 
 ---
 
 ## Despliegue
 
-### CI/CD (GitHub Actions)
+**CI/CD:** `.github/workflows/deploy.yml` — push a `main` → build → Azure Static Web Apps.
 
-El workflow `.github/workflows/deploy.yml` instala, compila y despliega a Static Web Apps en cada push
-a `main`.
+Secreto: `AZURE_STATIC_WEB_APPS_API_TOKEN`
 
-**Secreto requerido** (GitHub → Settings → Secrets and variables → Actions):
+```bash
+az staticwebapp secrets list -n eventosvivos-web -g rg-eventosvivos --query "properties.apiKey" -o tsv
+```
 
-| Secreto | Cómo obtenerlo |
-|---------|----------------|
-| `AZURE_STATIC_WEB_APPS_API_TOKEN` | `az staticwebapp secrets list -n eventosvivos-web -g rg-eventosvivos --query "properties.apiKey" -o tsv` |
-
-### Despliegue manual
+**Manual:**
 
 ```bash
 npm run build
-TOKEN=$(az staticwebapp secrets list -n eventosvivos-web -g rg-eventosvivos --query "properties.apiKey" -o tsv)
-npx @azure/static-web-apps-cli deploy dist/web/browser --deployment-token "$TOKEN" --env production
+npx @azure/static-web-apps-cli deploy dist/web/browser \
+  --deployment-token "<token>" --env production
 ```
 
-> `public/staticwebapp.config.json` define el *fallback* de la SPA para que las rutas profundas
-> funcionen al recargar.
+Las rutas profundas (`/events/create`, `/reservations`, etc.) funcionan al recargar gracias a
+`public/staticwebapp.config.json`.
