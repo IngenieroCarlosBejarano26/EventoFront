@@ -1,3 +1,4 @@
+# CI: build and deploy to Azure Static Web Apps on push to main
 name: Deploy Web (Azure Static Web Apps)
 
 on:
