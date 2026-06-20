@@ -1,0 +1,29 @@
+<p-toast />
+
+<p-menubar [model]="navItems" styleClass="app-menubar">
+  <ng-template pTemplate="start">
+    <span class="brand">
+      <span class="brand-mark">EV</span>
+      EventosVivos
+    </span>
+  </ng-template>
+  <ng-template pTemplate="end">
+    <div class="menubar-end">
+      <span class="conn" [class.online]="realtime.connected()">
+        <span class="dot"></span>
+        {{ realtime.connected() ? 'En vivo' : 'Sin conexión' }}
+      </span>
+      <a pButton routerLink="/events/create" icon="pi pi-plus" label="Nuevo evento" size="small"></a>
+    </div>
+  </ng-template>
+</p-menubar>
+
+<main>
+  <router-outlet />
+</main>
+
+<footer class="app-footer">
+  <span>EventosVivos · Gestión de eventos y reservas en tiempo real</span>
+  <span class="dot">•</span>
+  <span>.NET 10 + Angular 21</span>
+</footer>

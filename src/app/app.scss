@@ -1,0 +1,96 @@
+:host ::ng-deep .app-menubar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-radius: 0;
+  border-width: 0 0 1px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: none;
+  padding-block: 0.4rem;
+}
+
+/* Ítem activo del menú: tono ink, sin colores de marca llamativos. */
+:host ::ng-deep .app-menubar .p-menubar-item-link {
+  border-radius: var(--radius-sm);
+}
+
+:host ::ng-deep .app-menubar .p-menubar-item-link.router-link-active {
+  color: var(--text);
+  font-weight: 600;
+  background: var(--surface-2);
+}
+
+:host ::ng-deep .app-menubar .p-menubar-item-link.router-link-active .p-menubar-item-icon {
+  color: var(--text);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 650;
+  font-size: 0.98rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-right: 28px;
+}
+
+.brand .brand-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--text);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.menubar-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Indicador de conexión discreto (texto + punto), sin animaciones. */
+.conn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 550;
+  color: var(--muted);
+}
+
+.conn .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border-strong);
+}
+
+.conn.online {
+  color: var(--text-2);
+}
+
+.conn.online .dot {
+  background: var(--ok);
+}
+
+.app-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 24px 16px 36px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.app-footer .dot {
+  opacity: 0.5;
+}

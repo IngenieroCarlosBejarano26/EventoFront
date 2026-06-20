@@ -1,0 +1,5 @@
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:5090/api',
+  apiKey: 'eventosvivos-dev-api-key-2026',
+};
