@@ -25,82 +25,8 @@ import { ReservationDto } from '../../../core/models/reservation.model';
     InputNumberModule,
     TagModule,
   ],
-  template: `
-    <section class="page">
-      <header class="page-header">
-        <h1>Reservar entradas</h1>
-        <a pButton routerLink="/events" icon="pi pi-arrow-left" label="Volver" [text]="true"></a>
-      </header>
-
-      @if (event(); as ev) {
-        <p-card [header]="ev.title" [subheader]="ev.venueName + ' · ' + (ev.startDate | date: 'short')" styleClass="summary">
-          <p>
-            {{ ev.availableTickets }} entradas disponibles ·
-            <strong>{{ ev.price | currency: 'USD' }}</strong>
-          </p>
-        </p-card>
-      }
-
-      @if (!result()) {
-        <p-card>
-          <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
-            <div class="field">
-              <label for="buyerName">Nombre del comprador</label>
-              <input pInputText id="buyerName" formControlName="buyerName" />
-            </div>
-
-            <div class="field">
-              <label for="buyerEmail">Email</label>
-              <input pInputText id="buyerEmail" type="email" formControlName="buyerEmail" />
-              @if (form.controls.buyerEmail.touched && form.controls.buyerEmail.invalid) {
-                <small class="error">Email inválido.</small>
-              }
-            </div>
-
-            <div class="field">
-              <label>Cantidad</label>
-              <p-inputNumber formControlName="quantity" [min]="1" [showButtons]="true" />
-            </div>
-
-            <div class="actions span-2">
-              <p-button type="submit" icon="pi pi-ticket" label="Reservar" [disabled]="submitting()" />
-            </div>
-          </form>
-        </p-card>
-      } @else {
-        <p-card styleClass="result">
-          <i class="pi pi-check-circle ok"></i>
-          <h2>Reserva creada</h2>
-          <p>Estado: <p-tag [value]="result()!.status" severity="warn" /></p>
-          <p>ID de reserva: <code>{{ result()!.id }}</code></p>
-          <p class="muted">
-            Guarda este ID para confirmar el pago o cancelar desde la sección Reservas.
-          </p>
-          <a pButton routerLink="/reservations" label="Ir a gestión de reservas"></a>
-        </p-card>
-      }
-    </section>
-  `,
-  styles: [
-    `
-      :host ::ng-deep .summary {
-        margin-bottom: 16px;
-      }
-      .actions {
-        margin-top: 8px;
-      }
-      :host ::ng-deep .result .p-card-body {
-        text-align: center;
-      }
-      .ok {
-        font-size: 48px;
-        color: var(--p-green-500, #22c55e);
-      }
-      :host ::ng-deep .p-inputnumber {
-        width: 100%;
-      }
-    `,
-  ],
+  templateUrl: './reservation-create.html',
+  styleUrl: './reservation-create.scss',
 })
 export class ReservationCreate {
   readonly id = input<string>('');

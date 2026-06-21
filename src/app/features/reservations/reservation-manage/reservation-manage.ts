@@ -21,75 +21,8 @@ import { RESERVATION_STATUS_LABELS } from '../../../core/models/enums';
     InputTextModule,
     TagModule,
   ],
-  template: `
-    <section class="page">
-      <header class="page-header">
-        <h1>Gestión de reservas</h1>
-      </header>
-
-      <p-card>
-        <form [formGroup]="form" class="form-grid">
-          <div class="field span-2">
-            <label for="reservationId">ID de reserva</label>
-            <input pInputText id="reservationId" formControlName="reservationId" placeholder="GUID de la reserva" />
-          </div>
-
-          <div class="actions span-2">
-            <p-button
-              type="button"
-              icon="pi pi-dollar"
-              label="Confirmar pago"
-              [disabled]="form.invalid || busy()"
-              (onClick)="confirm()"
-            />
-            <p-button
-              type="button"
-              icon="pi pi-times"
-              label="Cancelar"
-              severity="danger"
-              [outlined]="true"
-              [disabled]="form.invalid || busy()"
-              (onClick)="cancel()"
-            />
-          </div>
-        </form>
-      </p-card>
-
-      @if (result(); as r) {
-        <p-card styleClass="result">
-          <h2>Reserva {{ r.code ?? r.id }}</h2>
-          <div class="tags">
-            <p-tag [value]="statusLabel(r.status)" [severity]="statusSeverity(r.status)" />
-            <p-tag [value]="r.quantity + ' entrada(s)'" severity="info" />
-          </div>
-          <p>Comprador: {{ r.buyerName }} ({{ r.buyerEmail }})</p>
-          @if (r.confirmedAt) {
-            <p class="muted">Confirmada: {{ r.confirmedAt | date: 'short' }}</p>
-          }
-          @if (r.cancelledAt) {
-            <p class="muted">Cancelada: {{ r.cancelledAt | date: 'short' }}</p>
-          }
-        </p-card>
-      }
-    </section>
-  `,
-  styles: [
-    `
-      .actions {
-        display: flex;
-        gap: 8px;
-      }
-      :host ::ng-deep .result {
-        margin-top: 16px;
-      }
-      .tags {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 8px;
-      }
-    `,
-  ],
+  templateUrl: './reservation-manage.html',
+  styleUrl: './reservation-manage.scss',
 })
 export class ReservationManage {
   private readonly reservationService = inject(ReservationService);

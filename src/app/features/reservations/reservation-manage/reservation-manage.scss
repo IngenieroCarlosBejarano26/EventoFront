@@ -1,0 +1,15 @@
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+:host ::ng-deep .result {
+  margin-top: 16px;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}

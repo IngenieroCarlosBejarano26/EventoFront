@@ -1,0 +1,20 @@
+:host ::ng-deep .summary {
+  margin-bottom: 16px;
+}
+
+.actions {
+  margin-top: 8px;
+}
+
+:host ::ng-deep .result .p-card-body {
+  text-align: center;
+}
+
+.ok {
+  font-size: 48px;
+  color: var(--p-green-500, #22c55e);
+}
+
+:host ::ng-deep .p-inputnumber {
+  width: 100%;
+}
